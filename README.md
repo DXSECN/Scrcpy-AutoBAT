@@ -1,4 +1,4 @@
-# Scrcpy 脚本 
+# Scrcpy 脚本（等待中）
 ## 中文 | [English](README_EN.MD)
 ## 1. 安装
 下载 [Scrcpy](https://github.com/Genymobile/scrcpy) 最新版，并解压。
