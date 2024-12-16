@@ -7,7 +7,7 @@
 本人非计算机专业，文件提供对象，是对有 Scrcpy 需求的非程序员用户。如果代码存在问题，欢迎致电邮箱 Paxsomnium@outlook.com 或在 issue 中提出。
 
 ## 2. 安装
-下载 [Scrcpy_v3.1+](https://github.com/Genymobile/scrcpy) ，并解压。
+下载 [Scrcpy_v3.1+](https://github.com/Genymobile/scrcpy)，并解压。
 
 将BAT文件复制到 Scrcpy 目录下。
 
