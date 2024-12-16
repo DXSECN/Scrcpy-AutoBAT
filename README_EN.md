@@ -1,5 +1,5 @@
 # Scrcpy Script
-## 1. Introduction (Chinese) | [English](README_EN.MD)
+## 1. Introduction [中文](README.md) | English
 For most people, GUI versions like QtScrcpy might be a better choice.\
 However, these GUI versions are often updated more slowly than the official version.\
 For example, on December 10, 2024, Scrcpy 3.1 was updated to support virtual screen usage, while QtScrcpy is still based on Scrcpy 3.0.2.
