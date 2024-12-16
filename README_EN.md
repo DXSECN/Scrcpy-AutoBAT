@@ -8,7 +8,7 @@ I am not a computer science professional, and this file is intended for non-prog
 The English version is translated by AI. The Chinese version shall prevail.
 
 ## 2. Installation
-Download the [latest version of Scrcpy](https://github.com/Genymobile/scrcpy) and extract it.
+Download [Scrcpy v3.1+](https://github.com/Genymobile/scrcpy) and extract it.
 
 Copy the BAT files to the Scrcpy directory.
 
