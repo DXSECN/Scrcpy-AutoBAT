@@ -9,7 +9,7 @@
 ## 2. 安装
 下载 [Scrcpy](https://github.com/Genymobile/scrcpy) 最新版，并解压。
 
-将BAT文件复制到scrcpy目录下。
+将BAT文件复制到 Scrcpy 目录下。
 
 
 ## 3. 使用
