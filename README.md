@@ -1,5 +1,5 @@
 # Scrcpy 脚本 
-## 1. 简介 中文 | [English](README_EN.MD)
+## 1. 简介 中文 | [English](README_EN.md)
 对于大部分人来说，QtScrcpy 等其他 GUI 版本的选择可能会是更好的选择。\
 但这些 GUI 版本，通常更新慢于官方版本。\
 例如2024年12月10号，Scrcpy 3.1 更新了虚拟屏幕使用，而 QtScrcpy 暂时更新至基于 Scrcpy 3.0.2 。
