@@ -14,8 +14,8 @@
 只传输声音，选中 Scrcpy 窗口可以通过键鼠控制设备，按win键弹出开始菜单可返回PC。
 
 若不希望鼠标控制，则可以编辑bat脚本，在设置参数后方选择性删除 -KMG 里的字母：
->-K （keyboard）键盘
->-M （mouse）鼠标
+>-K （keyboard）键盘\
+>-M （mouse）鼠标\
 >-G （gamepad）手柄
 
 ### 投屏模式
