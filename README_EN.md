@@ -5,7 +5,7 @@ However, these GUI versions are often updated more slowly than the official vers
 For example, on December 10, 2024, Scrcpy 3.1 was updated to support virtual screen usage, while QtScrcpy is still based on Scrcpy 3.0.2.
 Therefore, I hope to use a simple BAT script to ensure that the latest version of Scrcpy can always be used without relying on updates from Scrcpy_GUI versions.
 I am not a computer science professional, and this file is intended for non-programmer users who need Scrcpy. If there are any issues with the code, please contact me at Paxsomnium@outlook.com or raise an issue.\
-The English version is translated by AI. The Chinese version shall prevail.
+The English version is translated by AI.
 
 ## 2. Installation
 Download [Scrcpy v3.1+](https://github.com/Genymobile/scrcpy) and extract it.
