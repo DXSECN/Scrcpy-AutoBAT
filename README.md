@@ -3,8 +3,7 @@
 对于大部分人来说，QtScrcpy 等其他 GUI 版本的选择可能会是更好的选择。\
 但这些 GUI 版本，通常更新慢于官方版本。\
 例如2024年12月10号，Scrcpy 3.1 更新了虚拟屏幕使用，而 QtScrcpy 暂时更新至基于 Scrcpy 3.0.2 。
-因此，我希望能够用简单的 BAT 来让 Scrcpy 的最新版本也可以随时能够正常使用。不依赖于 Scrcpy_GUI 版本的更新。
-本人非计算机专业，文件提供对象，是对有 Scrcpy 需求的非程序员用户。如果代码存在问题，欢迎致电邮箱 Paxsomnium@outlook.com 或在 issue 中提出。
+因此，我希望能够用简单的 BAT 来让 Scrcpy 的最新版本也可以随时能够正常使用。不依赖于 Scrcpy_GUI 版本的缓慢更新。
 
 ## 2. 安装
 下载 [Scrcpy_v3.1+](https://github.com/Genymobile/scrcpy)，并解压。
