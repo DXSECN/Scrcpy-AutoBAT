@@ -38,16 +38,18 @@ REM Detect or select startup mode
 :ACTION_MODE
 if defined actMode (
     set act_mode=%actMode%
+    echo act_mode=%act_mode%
     goto :ACTION
 )
+:ACTION_INPUT
 echo Please select the execution mode:
 echo -----------------------------------------------------
 echo 1:Normal Mode, 2:Audio Mode, 3:Application Mode 
 echo 4:ADB Servicer, 5:Only Use Custom Parameters, 6:Exit
 echo -----------------------------------------------------
 set /p "act_mode=MODE "
-cls
 :ACTION
+cls
 if "%act_mode%"=="1" (
     echo Selected: Normal Mode
     set com_str_set= -KG --shortcut-mod=%shortcut_mod% --audio-codec=opus
@@ -70,7 +72,7 @@ if "%act_mode%"=="1" (
     exit
 ) else (
     echo Invalid input
-    goto :ACTION_MODE
+    goto :ACTION_INPUT
 )
 
 REM Detect or select connection mode

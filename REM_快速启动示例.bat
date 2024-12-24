@@ -12,4 +12,7 @@ REM 连接模式
 REM 1:USB模式 2:IP模式 3:退出
 set conMode=2
 
-call scrcpy_start_cn.bat
+call .\scrcpy_start_cn.bat
+
+pause
+exit /b

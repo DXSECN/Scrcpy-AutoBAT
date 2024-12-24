@@ -7,12 +7,46 @@ REM 定义脚本目录
 set "script_dir=%~dp0\scrcpy_core"
 cd /d "%script_dir%"
 
+
 :RESTART
 
-REM 检查config.ini是否存在，如果不存在则创建一个默认的config.ini文件
-if not exist "%script_dir%\config.ini" (
-    call :CONFIG_DEFAULT
-)
+REM 定义初始参数
+REM [NORM_SET]
+set screen_off_timeout=300
+set shortcut_mod=lalt
+set resolution=864x1920
+set max_size=1920
+set app_start_num=1
+set custom_param=
+REM [CONN_SET]
+set device_ip=
+set device_port=5555
+REM [USB_SET]
+set usb_video_codec=h264
+set usb_video_buffer=50
+set usb_max_fps=90
+set usb_audio_codec=opus
+set usb_audio_buffer=50
+REM [IP_SET]
+set ip_video_codec=h265
+set ip_video_buffer=80
+set ip_max_fps=60
+set ip_audio_codec=opus
+set ip_audio_buffer=80
+REM [APP_List]
+set app_1=org.fossify.home
+set app_2=
+set app_3=
+set app_4=
+set app_5=
+set app_6=
+set app_7=
+set app_8=
+set app_9=
+set app_0=
+REM [END]
+
+REM 检查scrcpy_core文件夹是否存在，如果不存在则尝试下载
 if not exist "%~dp0\scrcpy_core" (
     echo 按键任意键后开始尝试下载scrcpy_core
     call :SCRCPY_DOWNLOAD
@@ -21,6 +55,7 @@ if not exist "%~dp0\scrcpy_core" (
     exit
 )
 
+
 REM 加载配置文件
 call :CONFIG_LOAD
 if "resolution"=="" (
@@ -28,7 +63,6 @@ if "resolution"=="" (
 ) else (
     set "new_display=--new-display=%resolution%"
 )
-
 
 REM 调用GUI参数
 if defined guiMode (set "gui_mode=%guiMode%")
@@ -42,23 +76,26 @@ if defined actMode (
     set act_mode=%actMode%
     goto :ACTION
 )
+
+
+:ACTION_INPUT
 echo 请输入执行模式:
 echo -----------------------------------
 echo 1:投屏模式 2:传声模式 3:窗口模式 
 echo 4:ADB服务 5:使用自定义参数 6:退出
 echo -----------------------------------
 set /p "act_mode=MODE "
-cls
 :ACTION
+cls
 if "%act_mode%"=="1" (
     echo 已选择: 投屏模式
-    set com_str_set= -KG --shortcut-mod=%shortcut_mod% --audio-codec=opus
+    set com_mode= -KG --shortcut-mod=%shortcut_mod% --audio-codec=opus
 ) else if "%act_mode%"=="2" (
     echo 已选择: 音频模式
-    set com_str_set= --shortcut-mod=lalt --no-window --audio-codec=opus 
+    set com_mode= --shortcut-mod=lalt --no-window --audio-codec=opus 
 ) else if "%act_mode%"=="3" (
     echo 已选择: 应用模式
-    set com_str_set= --start-app=org.fossify.home -KG --shortcut-mod=lalt --audio-codec=opus --stay-awake %new_display%
+    set com_mode= --start-app=org.fossify.home -KG --shortcut-mod=lalt --audio-codec=opus --stay-awake %new_display%
     call :APP_CHOICE
 ) else if "%act_mode%"=="4" (
     cd /d %~dp0
@@ -66,24 +103,25 @@ if "%act_mode%"=="1" (
     pause
     exit
 ) else if "%act_mode%"=="5" (
-    set com_str_set=""
+    set com_mode=""
 ) else if "%act_mode%"=="6" (
     exit
 ) else (
     echo 无效输入
-    goto :ACTION_MODE
+    goto :ACTION_INPUT
 )
 
 
 REM 检测或选择连接模式
 :CONNECTION_MODE
 if defined conMode (
-    set con_mode=%connectMode%
+    set con_mode=%conMode%
     goto :CONNECTION
 )
+:CONNECTION_INPUT
 echo 请输入执行模式:
 echo -----------------------------------
-echo 1:USB模式, 2:IP模式, 3:退出
+echo 1:USB模式, 2:IP模式, 3:返回, 4:退出
 echo -----------------------------------
 set /p "con_mode=MODE "
 cls
@@ -97,12 +135,13 @@ if "%con_mode%"=="1" (
     cls
     goto :MODE_TRS
 ) else if "%con_mode%"=="3" (
+    goto :ACTION_MODE
+) else if "%con_mode%"=="4" (
     exit
 ) else (
     echo 无效输入
-    goto :CONNECTION_MODE
+    goto :CONNECTION_INPUT
 )
-
 
 
 ::------------------------------------------------------------------------------
@@ -112,7 +151,7 @@ for /f "skip=1 tokens=1" %%i in ('adb devices') do (
     set device_id=%%i
     REM 如果当前行为空，跳过
     if "!device_id!"=="" (
-        goto :end
+        goto :MODE_INI
     )
 )
 
@@ -147,6 +186,7 @@ if errorlevel 1 (
     goto :MODE_INI
 ) else (
 echo 已成功连接到设备 %device_ip%:5555
+if not "%device_ip%"=="" (set device_ip=%device_ip%)
 set device_port=5555
 )
 goto :SCRCPY_START
@@ -155,8 +195,8 @@ goto :SCRCPY_START
 :MODE_INI
 if defined deviceIP (
     echo 检测到IP本地配置
-    set "device_ip=%deviceIP%"
-    set "device_port=%devicePort%"
+    if defined deviceIP (set "device_ip=%deviceIP%")
+    if defined devicePort (set "device_port=%devicePort%")
     if "%device_ip%"=="" (
         goto :INPUT_IP
     )
@@ -177,8 +217,11 @@ if defined deviceIP (
 
 
 :INPUT_IP
-echo 请输入设备的IP地址和端口, 输入空白则使用当前地址 %device_ip%:%device_port%
-echo 输入usb则会返回USB直连模式, 输入ip则会重新尝试自动获取IP地址, 输入end退出
+echo 请输入设备的IP地址和端口:
+echo ----------------------------------------------------------------
+echo 输入usb返回USB直连, 输入ip则会重新尝试自动获取IP地址, 输入end退出,
+echo 不输入直接回车, 则使用已保存的IP地址: %device_ip%:%device_port%
+echo ----------------------------------------------------------------
 set /p "user_input=IP: "
 
 
@@ -245,29 +288,54 @@ if "!connect_success!"=="true" (
 
 :SCRCPY_START
 REM 参数合成
-set com_str_set= --screen-off-timeout=%screen_off_timeout%  --max-size=%max_size% --shortcut-mod=%shortcut_mod%
-
-set usb_streaming_set= --video-codec=%usb_video_codec% --video-buffer=%usb_video_buffer% --max-fps=%usb_max_fps% --audio-codec=%usb_audio_codec% --audio-buffer=%usb_audio_buffer%
-
-set ip_streaming_set= --video-codec=%usb_video_codec% --video-buffer=%usb_video_buffer% --max-fps=%usb_max_fps% --audio-codec=%usb_audio_codec% --audio-buffer=%usb_audio_buffer%
-
 echo 保存配置文件中...
 call :CONFIG_SAVE
+
+if "%act_mode%"=="1" (
+set "com_str_set= --screen-off-timeout=%screen_off_timeout%  --max-size=%max_size% --shortcut-mod=%shortcut_mod%"
+) else if "%act_mode%"=="2" (
+    set "com_str_set= --screen-off-timeout=%screen_off_timeout%  --max-size=%max_size% --shortcut-mod=%shortcut_mod%"
+) else if "%act_mode%"=="3" (
+    set "com_str_set= --screen-off-timeout=%screen_off_timeout%  --max-size=%max_size% --shortcut-mod=%shortcut_mod%"
+) else if "%act_mode%"=="4" (
+    set "com_str_set="
+)
+
+if con_mode=="1" (
+set video_codec=%usb_video_codec%
+set video_buffer=%usb_video_buffer%
+set max_fps=%usb_max_fps%
+set audio_codec=%usb_audio_codec%
+set audio_buffer=%usb_audio_buffer%
+) else (
+set video_codec=%ip_video_codec%
+set video_buffer=%ip_video_buffer%
+set max_fps=%ip_max_fps%
+set audio_codec=%ip_audio_codec%
+set audio_buffer=%ip_audio_buffer%
+)
+
+
+set str_set= --video-codec=%video_codec% --video-buffer=%video_buffer%  --audio-codec=%audio_codec% --audio-buffer=%audio_buffer% --max-fps=%max_fps%
+
+
+
+
 echo IP: %device_ip%:%device_port%
-if "%con_mode%"=="1" (
-    set com_mode= -d
+if "%connect_mode%"=="1" (
+    set connect_mode= -d
 ) else if "%con_mode%"=="2" (
-    set com_mode= --serial=%device_ip%:%device_port%
+    set connect_mode= --serial=%device_ip%:%device_port%
 ) else (
     echo 无效的连接模式
     pause
     exit /b
 )
 echo ------------------------------------------------------------------------
-echo scrcpy%com_mode%%com_str_set%%usb_streaming_set%%ip_streaming_set%
+echo scrcpy%com_mode%%connect_mode%%com_str_set%%str_set%%custom_param%
 echo ------------------------------------------------------------------------
 powershell -window minimized -command ""
-scrcpy%com_mode%%com_str_set%%usb_streaming_set%%ip_streaming_set%%custom_param%
+scrcpy%com_mode%%connect_mode%%com_str_set%%str_set%%custom_param%
 if errorlevel 1 (
     echo scrcpy 启动失败
     powershell -window normal -command ""
@@ -293,146 +361,134 @@ for /f "delims=" %%a in ('.\adb connect %device_ip%:%device_port% 2^>^&1') do (
 )
 exit /b
 
-REM 保存配置文件
-:CONFIG_SAVE
-set "configFile=%~dp0config.ini"
-set "tempFile=%~dp0config_temp.ini"
 
+REM ---------------------------------------------------------------------
+:CONFIG_SAVE
+REM 设置输出 ini 文件路径（覆盖原文件）
+set "output_ini=%~dp0config.ini"
+
+REM 备份原始 config.ini 文件
+copy /y "%ini_file%" %~dp0"config_bak" >nul
+if errorlevel 1 (
+    echo 警告: 无法备份 %ini_file%
+) else (
+    echo 已创建配置文件备份为 config_backup.ini
+)
+
+REM 开始写入新的 config.ini 文件
+REM 使用括号组确保一次性重定向所有输出
 (
+    REM 写入 [NORM_SET] 部分
     echo [NORM_SET]
     echo screen_off_timeout=%screen_off_timeout%
     echo shortcut_mod=%shortcut_mod%
     echo resolution=%resolution%
+    echo max_size=%max_size%
     echo app_start_num=%app_start_num%
     echo custom_param=%custom_param%
-    
+
+    REM 写入 [CONN_SET] 部分
     echo [CONN_SET]
     echo device_ip=%device_ip%
     echo device_port=%device_port%
-    
+
+    REM 写入 [USB_SET] 部分
     echo [USB_SET]
     echo usb_video_codec=%usb_video_codec%
     echo usb_video_buffer=%usb_video_buffer%
     echo usb_max_fps=%usb_max_fps%
     echo usb_audio_codec=%usb_audio_codec%
     echo usb_audio_buffer=%usb_audio_buffer%
-    
+
+    REM 写入 [IP_SET] 部分
     echo [IP_SET]
     echo ip_video_codec=%ip_video_codec%
     echo ip_video_buffer=%ip_video_buffer%
     echo ip_max_fps=%ip_max_fps%
     echo ip_audio_codec=%ip_audio_codec%
     echo ip_audio_buffer=%ip_audio_buffer%
-    
+
+    REM 写入 [APP_List] 部分
     echo [APP_List]
-    for /L %%i in (1,1,9) do (
-        if defined app%%i (
-            echo app_%%i=!app%%i!
-        ) else (
-            echo app_%%i=
-        )
-    )
-    echo app_0=
+    echo app_1=%app_1%
+    echo app_2=%app_2%
+    echo app_3=%app_3%
+    echo app_4=%app_4%
+    echo app_5=%app_5%
+    echo app_6=%app_6%
+    echo app_7=%app_7%
+    echo app_8=%app_8%
+    echo app_9=%app_9%
+    echo app_0=%app_0%
+
+    REM 写入 [END] 部分（如果需要）
     echo [END]
-) > "%tempFile%"
-move /y "%tempFile%" "%configFile%" >nul
+) > "%output_ini%"
+
+echo 配置文件保存成功...
+endlocal
 exit /b
 
 
-REM 读取配置文件
+REM -------------------------------------------------------------
 :CONFIG_LOAD
-set "configFile=%~dp0config.ini"
-set "inSection="
-set "appCount=0"
+REM 设置 ini 文件路径
+set "ini_file=%~dp0config.ini"
 
-REM 遍历配置文件
-for /f "tokens=*" %%a in ('type "%configFile%"') do (
+REM 逐行读取 ini 文件
+for /f "usebackq tokens=* delims=" %%a in ("%ini_file%") do (
     set "line=%%a"
-
-    REM 判断段落
-    if "!line!"=="[NORM_SET]" set "inSection=NORM_SET"
-    if "!line!"=="[CONN_SET]" set "inSection=CONN_SET"
-    if "!line!"=="[USB_SET]" set "inSection=USB_SET"
-    if "!line!"=="[IP_SET]" set "inSection=IP_SET"
-    if "!line!"=="[APP_List]" set "inSection=APP_List"
-    if "!line!"=="[END]" set "inSection="
-
-    REM 动态解析配置项
-    if defined inSection (
-        for /f "tokens=1,* delims==" %%b in ("!line!") do (
-            set "key=%%b"
-            set "value=%%c"
-            if not "%%c"=="" set "!key!=%%c"
-        )
-    )
-
-    REM 处理 APP_List
-    if "!inSection!"=="APP_List" (
-        if not "%%a"=="" (
-            set /a appCount+=1
-            set "app!appCount!=%%a"
+    
+    REM 去除行首和行尾的空格
+    call :trim line line_trimmed
+    
+    REM 跳过空行和注释
+    if not "!line_trimmed!"=="" (
+        set "first_char=!line_trimmed:~0,1!"
+        if not "!first_char!"=="[" (
+            if not "!first_char!"==";" (
+                REM 检查是否包含等号 =
+                echo "!line_trimmed!" | find "=" >nul
+                if not errorlevel 1 (
+                    REM 分割成键和值
+                    for /f "tokens=1,* delims==" %%b in ("!line_trimmed!") do (
+                        set "key=%%b"
+                        set "value=%%c"
+                        
+                        REM 去除键和值前后的空格
+                        call :trim key key_trimmed
+                        call :trim value value_trimmed
+                        
+                        REM 设置变量，变量名为键
+                        set "!key_trimmed!=!value_trimmed!"
+                    )
+                )
+            )
         )
     )
 )
-REM 将resolution变量拆分为res_width和res_heigth
-for /f "tokens=1,2 delimsx:" %%a in ("%resolution%") do (
-    set "res_width=%%a"
-    set "res_heigth=%%b"
-)
+
 exit /b
 
 
+REM 子程序：修剪变量中前后的空格
+:trim
+    set "string=!%1!"
+    REM 去除左边空格
+    for /f "tokens=* delims= " %%x in ("!string!") do set "string=%%x"
+    REM 去除右边空格
+    :loop
+    if "!string:~-1!"==" " (
+        set "string=!string:~0,-1!"
+        goto loop
+    )
+    set "%2=!string!"
 
-REM 默认配置文件生成
-:CONFIG_DEFAULT
-set "configFile=%~dp0config.ini"
-set "tempFile=%~dp0config_temp.ini"
-
-(
-    echo [NORM_SET]
-    echo screen_off_timeout=300
-    echo shortcut_mod=lalt
-    echo resolution=864x1920
-    echo max_size=1920
-    echo app_start_num=1
-    echo custom_param=
-
-    echo [CONN_SET]
-    echo device_ip=
-    echo device_port=5555
-
-    echo [USB_SET]
-    echo usb_video_codec=h264
-    echo usb_video_buffer=50
-    echo usb_max_fps=90
-    echo usb_audio_codec=opus
-    echo usb_audio_buffer=50
-
-    echo [IP_SET]
-    echo ip_video_codec=h265
-    echo ip_video_buffer=80
-    echo ip_max_fps=60
-    echo ip_audio_codec=opus
-    echo ip_audio_buffer=80
-
-    echo [APP_List]
-    echo app_1=org.fossify.home
-    echo app_2=
-    echo app_3=
-    echo app_4=
-    echo app_5=
-    echo app_6=
-    echo app_7=
-    echo app_8=
-    echo app_9=
-    echo app_0=
-    echo [END]
-) > "%tempFile%"
-move /y "%tempFile%" "%configFile%" >nul
 exit /b
 
+
+REM ---------------------------------------------------------------------------
 :APP_CHOICE
-
 REM 清空屏幕
 cls
 
