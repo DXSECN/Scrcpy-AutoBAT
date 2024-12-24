@@ -1,19 +1,21 @@
 @echo off
 chcp 65001 >nul
-title Scrcpy 窗口模式
+title Scrcpy-AutoBAT-v2.1 based on scrcpy v3.1
 setlocal enabledelayedexpansion
 
 REM 定义脚本目录
 set "script_dir=%~dp0\scrcpy_core"
 cd /d "%script_dir%"
 
+:RESTART
+
 REM 检查config.ini是否存在，如果不存在则创建一个默认的config.ini文件
 if not exist "%script_dir%\config.ini" (
     call :CONFIG_DEFAULT
 )
-if not exist "%~dp0scrcpy_core" (
+if not exist "%~dp0\scrcpy_core" (
     echo 按键任意键后开始尝试下载scrcpy_core
-    call scrcpy_download.bat
+    call :SCRCPY_DOWNLOAD
     pause
     cls
     exit
@@ -32,10 +34,7 @@ REM 调用GUI参数
 if defined guiMode (set "gui_mode=%guiMode%")
 :: actMode conMode
 
-
 cls
-echo 正在启动scrcpy...
-
 
 REM 检测或选择启动模式
 :ACTION_MODE
@@ -43,27 +42,32 @@ if defined actMode (
     set act_mode=%actMode%
     goto :ACTION
 )
-echo 请输入执行模式 ^(1:投屏模式, 2:传声模式, 3:窗口模式, 4: ADB服务, 5:退出^)
+echo 请输入执行模式:
+echo -----------------------------------
+echo 1:投屏模式 2:传声模式 3:窗口模式 
+echo 4:ADB服务 5:使用自定义参数 6:退出
+echo -----------------------------------
 set /p "act_mode=MODE "
 cls
 :ACTION
 if "%act_mode%"=="1" (
-    echo 投屏模式
-    set com_str_set= -KG --shortcut-mod=%shourtcut_mod% --audio-codec=opus
+    echo 已选择: 投屏模式
+    set com_str_set= -KG --shortcut-mod=%shortcut_mod% --audio-codec=opus
 ) else if "%act_mode%"=="2" (
-    echo 音频模式
+    echo 已选择: 音频模式
     set com_str_set= --shortcut-mod=lalt --no-window --audio-codec=opus 
 ) else if "%act_mode%"=="3" (
-    echo 应用模式
+    echo 已选择: 应用模式
     set com_str_set= --start-app=org.fossify.home -KG --shortcut-mod=lalt --audio-codec=opus --stay-awake %new_display%
     call :APP_CHOICE
 ) else if "%act_mode%"=="4" (
-    echo ADB服务
     cd /d %~dp0
-    call :ADB_MODE
+    goto :ADB_MODE
     pause
     exit
 ) else if "%act_mode%"=="5" (
+    set com_str_set=""
+) else if "%act_mode%"=="6" (
     exit
 ) else (
     echo 无效输入
@@ -77,7 +81,10 @@ if defined conMode (
     set con_mode=%connectMode%
     goto :CONNECTION
 )
-echo 请输入执行模式 ^(1:USB模式, 2:IP模式, 3:退出^)
+echo 请输入执行模式:
+echo -----------------------------------
+echo 1:USB模式, 2:IP模式, 3:退出
+echo -----------------------------------
 set /p "con_mode=MODE "
 cls
 :CONNECTION
@@ -138,9 +145,10 @@ adb connect %device_ip%:5555
 if errorlevel 1 (
     echo 设备连接 Wi-Fi 调试失败
     goto :MODE_INI
-)
+) else (
 echo 已成功连接到设备 %device_ip%:5555
 set device_port=5555
+)
 goto :SCRCPY_START
 
 
@@ -237,11 +245,11 @@ if "!connect_success!"=="true" (
 
 :SCRCPY_START
 REM 参数合成
-com_str_set= --screen-off-timeout=%screen_off_timeout% --shourtcut-mod=%shourtcut_mod% --max-size=%max_size%
+set com_str_set= --screen-off-timeout=%screen_off_timeout%  --max-size=%max_size% --shortcut-mod=%shortcut_mod%
 
-usb_streaming_set= --video-codec=%usb_video_codec% --video-buffer=%usb_video_buffer% --max-fps=%usb_max_fps% --audio-code=%usb_audio_code% --audio-buffer=%usb_audio_buffer%
+set usb_streaming_set= --video-codec=%usb_video_codec% --video-buffer=%usb_video_buffer% --max-fps=%usb_max_fps% --audio-codec=%usb_audio_codec% --audio-buffer=%usb_audio_buffer%
 
-ip_streaming_set= --video-codec=%usb_video_codec% --video-buffer=%usb_video_buffer% --max-fps=%usb_max_fps% --audio-code=%usb_audio_code% --audio-buffer=%usb_audio_buffer%
+set ip_streaming_set= --video-codec=%usb_video_codec% --video-buffer=%usb_video_buffer% --max-fps=%usb_max_fps% --audio-codec=%usb_audio_codec% --audio-buffer=%usb_audio_buffer%
 
 echo 保存配置文件中...
 call :CONFIG_SAVE
@@ -259,7 +267,7 @@ echo ------------------------------------------------------------------------
 echo scrcpy%com_mode%%com_str_set%%usb_streaming_set%%ip_streaming_set%
 echo ------------------------------------------------------------------------
 powershell -window minimized -command ""
-scrcpy %com_mode% %com_str_set% %usb_streaming_set% %ip_streaming_set%
+scrcpy%com_mode%%com_str_set%%usb_streaming_set%%ip_streaming_set%%custom_param%
 if errorlevel 1 (
     echo scrcpy 启动失败
     powershell -window normal -command ""
@@ -293,9 +301,10 @@ set "tempFile=%~dp0config_temp.ini"
 (
     echo [NORM_SET]
     echo screen_off_timeout=%screen_off_timeout%
-    echo shourtcut_mod=%shourtcut_mod%
+    echo shortcut_mod=%shortcut_mod%
     echo resolution=%resolution%
     echo app_start_num=%app_start_num%
+    echo custom_param=%custom_param%
     
     echo [CONN_SET]
     echo device_ip=%device_ip%
@@ -305,14 +314,14 @@ set "tempFile=%~dp0config_temp.ini"
     echo usb_video_codec=%usb_video_codec%
     echo usb_video_buffer=%usb_video_buffer%
     echo usb_max_fps=%usb_max_fps%
-    echo usb_audio_code=%usb_audio_code%
+    echo usb_audio_codec=%usb_audio_codec%
     echo usb_audio_buffer=%usb_audio_buffer%
     
     echo [IP_SET]
     echo ip_video_codec=%ip_video_codec%
     echo ip_video_buffer=%ip_video_buffer%
     echo ip_max_fps=%ip_max_fps%
-    echo ip_audio_code=%ip_audio_code%
+    echo ip_audio_codec=%ip_audio_codec%
     echo ip_audio_buffer=%ip_audio_buffer%
     
     echo [APP_List]
@@ -382,10 +391,11 @@ set "tempFile=%~dp0config_temp.ini"
 (
     echo [NORM_SET]
     echo screen_off_timeout=300
-    echo shourtcut_mod=lalt
+    echo shortcut_mod=lalt
     echo resolution=864x1920
     echo max_size=1920
     echo app_start_num=1
+    echo custom_param=
 
     echo [CONN_SET]
     echo device_ip=
@@ -395,14 +405,14 @@ set "tempFile=%~dp0config_temp.ini"
     echo usb_video_codec=h264
     echo usb_video_buffer=50
     echo usb_max_fps=90
-    echo usb_audio_code=opus
+    echo usb_audio_codec=opus
     echo usb_audio_buffer=50
 
     echo [IP_SET]
     echo ip_video_codec=h265
     echo ip_video_buffer=80
     echo ip_max_fps=60
-    echo ip_audio_code=opus
+    echo ip_audio_codec=opus
     echo ip_audio_buffer=80
 
     echo [APP_List]
@@ -487,9 +497,13 @@ exit /b
 
 REM ADB服务
 :ADB_MODE
+cd /d %script_dir%
 if not defined adbMode (
     set adb_mode=%adbMode%
-echo 请输入执行模式(1:重启服务, 2:关闭服务, 3:打开服务, 4:退出)
+echo 请输入需要的ADB命令
+echo ----------------------------------------------------
+echo 1:重启ADB服务, 2:关闭ADB服务, 3:打开ADB服务, 4:退出
+echo ----------------------------------------------------
 set /p "adb_mode=MODE "
 )
 cls
@@ -505,7 +519,7 @@ if "%adb_mode%"=="1" (
     )
     cls
     echo 重启服务成功
-    exit /b
+    goto :RESTART
 
 ) else if "%adb_mode%"=="2" (
     echo 停止服务中...
@@ -517,7 +531,8 @@ if "%adb_mode%"=="1" (
     )
     cls
     echo 服务已停止
-    goto end
+    pause
+    exit
 
 ) else if "%adb_mode%"=="3" (
     echo 启动服务中...
@@ -529,7 +544,7 @@ if "%adb_mode%"=="1" (
     )
     cls
     echo 启动服务成功
-    exit /b
+    goto :RESTART
 
 ) else if "%adb_mode%"=="4" (
     exit
@@ -539,4 +554,44 @@ if "%adb_mode%"=="1" (
     goto ADB_MODE
 )
 
+exit /b
+
+
+:SCRCPY_DOWNLOAD
+if exist scrcpy_core (exit /b)
+if not exist scrcpy-win64-v3.1.zip (
+REM 下载scrcpy-win64-v3.1.zip
+powershell wget -Uri https://github.com/Genymobile/scrcpy/releases/download/v3.1/scrcpy-win64-v3.1.zip -OutFile "scrcpy-win64-v3.1.zip"
+)
+
+REM 检查下载是否成功
+if exist "scrcpy-win64-v3.1.zip" (
+    echo 压缩包下载成功
+) else (
+    echo 压缩包下载失败
+    pause
+    exit /b
+)
+
+REM 解压缩文件到当前目录
+powershell -command "Expand-Archive -Path 'scrcpy-win64-v3.1.zip' -DestinationPath '.'"
+
+REM 检查解压缩是否成功
+if exist "scrcpy-win64-v3.1.zip" (
+
+    REM 将解压后的目录重命名为 scrcpy_core
+    ren scrcpy-win64-v3.1 scrcpy_core
+
+    REM 删除压缩包
+    del scrcpy-win64-v3.1.zip
+
+    echo 解压缩并重命名成功，压缩包已删除
+    timeout /t 3
+    exit /b
+) else (
+    echo 解压缩失败
+    pause
+    exit /b
+)
+pause
 exit /b

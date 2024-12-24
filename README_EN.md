@@ -1,138 +1,135 @@
 # Scrcpy Script
+
 ## 1. Introduction [中文](README.md) | English
-For most people, GUI versions like QtScrcpy might be a better choice.\
-However, these GUI versions are often updated more slowly than the official version.\
-For example, on December 10, 2024, Scrcpy 3.1 was updated to support virtual screen usage, while QtScrcpy is still based on Scrcpy 3.0.2.
-Therefore, I hope to use a simple BAT script to ensure that the latest version of Scrcpy can always be used without relying on updates from Scrcpy_GUI versions.
-I am not a computer science professional, and this file is intended for non-programmer users who need Scrcpy. If there are any issues with the code, please contact me at Paxsomnium@outlook.com or raise an issue.\
-The English version is translated by AI.
+
+English version is translated by AI.
+
+Current version: `scrcpy-AutoBAT_v2.1` `scrcpy_v3.1`
+
+This project is currently only designed for the Windows platform.
+
+Although GUI versions like QtScrcpy may be a better choice for most users, these GUI versions are usually updated slower than the official version.  
+As of **December 10, 2024**, Scrcpy 3.1 introduced virtual display support, while QtScrcpy is still based on Scrcpy 3.0.2.  
+Therefore, I created a simple **BAT script** to ensure that the latest version of Scrcpy can always be used without relying on the slower updates of GUI versions.
+
+In the future, I also plan to develop a GUI tool specifically for automatically generating parameters, making it easier for everyone to use.
+
+
 
 ## 2. Installation
-Download [Scrcpy v3.1+](https://github.com/Genymobile/scrcpy) and extract it.
 
-Copy the BAT files to the Scrcpy directory.
+The `scrcpy_download.bat` in the root directory is used to automatically download `scrcpy-win64-v3.1.zip` and extract it.  
+If the main program detects that the `scrcpy_core` directory is missing, it will automatically call `scrcpy_download.bat` to download the required files.  
+
+**Note:** If you manually update Scrcpy, please place the updated files in the `scrcpy_core` directory.
+
+
 
 ## 3. Usage
 
-Choose the BAT execution mode you need and open the corresponding BAT file.
+Run the main program `scrcpy_start_cn.bat` (for Chinese) or `scrcpy_start_en.bat` (for English) to start using it.
 
-### Scrcpy_Mode_Selection.bat
-Opening this BAT will enter the mode selection mode, where other BAT scripts can be called to run Scrcpy with different parameters. In the future, I plan to optimize this into a single file.
+### Mode Selection
 
-### USB Direct Connection / IP Mode
-During the execution of the BAT script, you will be prompted to select the connection mode. \
-You can choose between USB direct connection or network IP connection.
+After launching the main program, you will enter the **mode selection menu**, which provides the following three modes:
 
-If you choose IP mode, it will first attempt to automatically obtain the IP address via USB debugging. \
-If this process fails, you will be prompted to manually enter the IP address and port.
+![screenshot](assets/en_act_set.png)
 
-### Scrcpy_Audio_Transmission_Mode.bat
-This mode only transmits audio. When the Scrcpy window is selected, you can control the device using the keyboard and mouse. Press the Win key to bring up the Start menu and return to the PC.
+#### **Mirroring Mode**
 
-If you do not want mouse control, you can edit the BAT script and selectively remove letters from `-KMG`:
->-K (keyboard) \
->-M (mouse) \
->-G (gamepad)
+The standard screen mirroring mode.
 
-### Scrcpy_Screen_Mirroring_Mode.bat
-This is the standard screen mirroring mode.
+#### **Audio Mode**
 
-### Scrcpy_Window_Mode.bat
-This mode is supported by Scrcpy v3.02+. It creates independent windows on your computer to use apps independently, rather than mirroring the phone screen. In this mode, the content displayed on the phone screen and the content mirrored on the computer are separate.
+Only transmits audio.  
+In this mode, selecting the Scrcpy window allows you to control the device using the keyboard and mouse. Pressing the **Windows key** will open the start menu and return to the PC interface.
 
-However, opening the same app in multiple windows simultaneously may cause some windows to fail to run correctly.
+#### **Application Mode**
 
-Note: This feature may require support from a third-party launcher app. The default is the open-source Android launcher [Fossify](https://github.com/FossifyOrg/Launcher). If you need to change it, you can modify the script parameter.
-```bash
---start-app=org.fossify.home
-```
-Replace the package name after the equals sign with the package name of the desired launcher.
+This mode is supported starting from **Scrcpy 3.1+**.  
+It allows you to create an independent window on your computer to run a specific app, rather than mirroring the entire phone screen.  
+
+In this mode, the phone's display and the mirrored content on the computer are separate.  
+**Note**: Opening the same app in multiple windows may cause errors, making some windows unable to run properly.  
+
+Additionally, this feature may require third-party launcher software.  
+By default, the program uses the open-source Android launcher [Fossify](https://github.com/FossifyOrg/Launcher) (`org.fossify.home`).  
+You can change the parameter value to specify the package name of a different launcher.
+
+#### **ADB Service**
+
+![alt text](assets/cn_adb_set.png)
+
+This feature allows you to start or stop the ADB service.  
+It can be used to troubleshoot connection errors or terminate established connections.
+
+---
+
+### Connection Modes
+
+You can choose between **USB connection** or **IP connection**.  
+During the BAT script execution, you will be prompted to select a connection mode:  
+
+- **USB Connection**: Connect directly via USB cable.  
+- **IP Connection**: Connect via the device's IP address.  
+
+When using **IP mode**, the script will first attempt to retrieve the device's IP address using USB debugging.  
+If this process fails, you will be prompted to manually input the IP address and port.
+
+---
 
 ### Shortcuts
-For details, refer to the [Scrcpy shortcuts](https://github.com/Genymobile/scrcpy/blob/master/doc/shortcuts.md).
+
+For detailed shortcuts, please refer to the official [Scrcpy Shortcuts](https://github.com/Genymobile/scrcpy/blob/master/doc/shortcuts.md).  
+By default, the **`lalt`** key is used as the modifier key for shortcuts.
+
+
 
 ## 4. Configuration
 
-Here is a brief explanation of the default parameters I added for each mode. \
-For detailed information, refer to the [Scrcpy documentation](https://github.com/Genymobile/scrcpy/tree/master/doc).
+Below is a simple explanation of the default parameters added for each mode.  
+For custom parameters, refer to the official [Scrcpy Documentation](https://github.com/Genymobile/scrcpy/tree/master/doc).
 
-Note that different parameters are set for USB mode and IP mode. \
-Typically, higher parameters are set for USB mode.
-
-### Control
-```bash
--KMG Enable keyboard, mouse, and gamepad
--K (--keyboard) Enable keyboard
--M (--mouse) Enable mouse
--G (gamepad) Enable gamepad
-```
-
-### Video
-Set the video bit rate to 20 Mbps. The second format is a shorthand.
-```bash
---video-bit-rate=20M
-```
-```bash
--b 20M
-```
-Set the maximum resolution to 1920, or maintain the aspect ratio of the device screen.
-```bash
---max-size=1920
-```
-```bash
--m 1920
-```
-Set the maximum frame rate to 60 FPS.
-```bash
---max-fps=60
-```
-Set the video codec to **h264 | h265 | av1**
-```bash
---video-codec=h264
-```
-Set the video buffer size to 50. A smaller value provides lower latency, while a larger value ensures smoother video.
-```bash
---video-buffer=50
-```
-Disable video.
-```bash
---no-video
+```ini
+[NORM_SET]
+screen_off_timeout=300      // Auto screen-off timeout
+shortcut_mod=lalt           // Modifier key for shortcuts
+resolution=864x1920         // New screen resolution
+max_size=1920               // Stream resolution
+app_start_num=1             // Default app start index
+custom_param=               // Custom parameters
+[CONN_SET]
+device_ip=                  // Last saved IP address
+device_port=5555            // Last saved IP port
+[USB_SET]
+usb_video_codec=h264        // USB mode - video codec
+usb_video_buffer=50         // USB mode - video buffer (lower = less delay, higher = more stable)
+usb_max_fps=90              // USB mode - max frame rate
+usb_audio_codec=opus        // USB mode - audio codec
+usb_audio_buffer=50         // USB mode - audio buffer
+[IP_SET]
+ip_video_codec=h265         // IP mode - video codec
+ip_video_buffer=80          // IP mode - video buffer (lower = less delay, higher = more stable)
+ip_max_fps=60               // IP mode - max frame rate
+ip_audio_codec=opus         // IP mode - audio codec
+ip_audio_buffer=80          // IP mode - audio buffer
+[APP_List]
+app_1=org.fossify.home      // App 0~9 (package names)
+app_2=                      // Specify package name here
+app_3=                      // For app mode, choose the app to open
+app_4=
+app_5=
+app_6=
+app_7=
+app_8=
+app_9=
+app_0=
+[END]
 ```
 
-### Audio
-Set the audio bit rate to 128 Kbps.
-```bash
---audio-bit-rate=128k
-```
-Set the audio codec to **opus | aac | flac | raw**
-```bash
---audio-codec=opus
-```
-Set the audio buffer size to 50. A smaller value provides lower latency, while a larger value ensures smoother audio.
-```bash
---audio-buffer=50
-```
-Disable audio.
-```bash
---no-audio
-```
-
-### Window Mode
-
-Use the Fossify launcher.
-```bash
---start-app=org.fossify.home
-```
-Create a new display with a resolution of 864x1920. If no resolution is specified, the device's default resolution is used.
-```bash
---new-display=864x1920
---new-display
-```
-Not showing the native display, which can slightly reduce performance overhead. Optional, disabled by default.
-```bash
---no-vd-system-decorations
-```
 
 ## 5. Acknowledgments
->[Scrcpy](https://github.com/Genymobile/scrcpy) \
->[Fossify](https://github.com/FossifyOrg/Launcher)
+
+Based on [Scrcpy](https://github.com/Genymobile/scrcpy) & [Fossify](https://github.com/FossifyOrg/Launcher)  
+
+--- 
