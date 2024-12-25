@@ -7,7 +7,6 @@ REM 定义脚本目录
 set "script_dir=%~dp0\scrcpy_core"
 cd /d "%script_dir%"
 
-
 :RESTART
 
 REM 定义初始参数
@@ -245,7 +244,8 @@ if "%user_input%"=="usb" (
 
 REM 检测IP地址
 if "%user_input%"=="" (
-    echo 输入为空, 使用当前地址 %device_ip%:%device_port%
+    echo 正在使用当前地址: %device_ip%:%device_port%
+    echo 加载中。。。
     if "%device_ip%"=="" (
         cls
         echo 当前地址为空, 无法连接设备, 请重新输入
@@ -550,7 +550,7 @@ if "%app_input_choice%" geq "0" if "%app_input_choice%" leq "9" (
 exit /b
 
 
-
+REM --------------------------------------------------------------------------
 REM ADB服务
 :ADB_MODE
 cd /d %script_dir%
