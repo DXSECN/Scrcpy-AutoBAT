@@ -3,13 +3,13 @@ chcp 65001 >nul
 title Scrcpy-AutoBAT-v2.1 based on scrcpy v3.1
 setlocal enabledelayedexpansion
 
-REM 定义脚本目录
+REM Define script directory
 set "script_dir=%~dp0\scrcpy_core"
 cd /d "%script_dir%"
 
 :RESTART
 
-REM 定义默认参数
+REM Define default parameters
 REM [NORM_SET]
 set screen_off_timeout=300
 set shortcut_mod=lalt
@@ -45,17 +45,16 @@ set app_9=
 set app_0=
 REM [END]
 
-REM 检查scrcpy_core文件夹是否存在，如果不存在则尝试下载
+REM Check if scrcpy_core folder exists, if not, try to download
 if not exist "%~dp0\scrcpy_core" (
-    echo 按键任意键后开始尝试下载scrcpy_core
+    echo Press any key to start downloading scrcpy_core
     call :SCRCPY_DOWNLOAD
     pause
     cls
     exit
 )
 
-
-REM 加载配置文件
+REM Load configuration file
 call :CONFIG_LOAD
 if "%resolution%"=="" (
     set "%new_display%=--new-display"
@@ -73,38 +72,36 @@ if defined customParam (
     )
 )
 
-
-REM 调用参数
+REM Call parameters
 if defined guiMode (set "gui_mode=%guiMode%")
 :: actMode conMode
 
 cls
 
-REM 检测或选择启动模式
+REM Detect or select startup mode
 :ACTION_MODE
 if defined actMode (
     set "act_mode=%actMode%"
     goto :ACTION
 )
 
-
 :ACTION_INPUT
-echo 请输入执行模式:
-echo -----------------------------------
-echo 1:投屏模式 2:音频模式 3:应用模式 
-echo 4:ADB服务 5:自定义模式 6:退出
-echo -----------------------------------
+echo Please enter execution mode:
+echo --------------------------------------
+echo 1:Screen Mode 2:Audio Mode 3:App Mode 
+echo 4:ADB Service 5:Custom Mode 6:Exit
+echo --------------------------------------
 set /p "act_mode=MODE "
 :ACTION
 cls
 if "%act_mode%"=="1" (
-    echo 已选择: 投屏模式
+    echo Selected: Screen Mode
     set com_mode= -KG --stay-awake
 ) else if "%act_mode%"=="2" (
-    echo 已选择: 音频模式
+    echo Selected: Audio Mode
     set com_mode= --no-window
 ) else if "%act_mode%"=="3" (
-    echo 已选择: 应用模式
+    echo Selected: App Mode
     set com_mode= -KG --stay-awake
     call :APP_CHOICE
 ) else if "%act_mode%"=="4" (
@@ -117,31 +114,30 @@ if "%act_mode%"=="1" (
 ) else if "%act_mode%"=="6" (
     exit
 ) else (
-    echo 无效输入
+    echo Invalid input
     goto :ACTION_INPUT
 )
 
-
-REM 检测或选择连接模式
+REM Detect or select connection mode
 :CONNECTION_MODE
 if defined conMode (
     set "con_mode=%conMode%"
     goto :CONNECTION
 )
 :CONNECTION_INPUT
-echo 请输入执行模式:
-echo -----------------------------------
-echo 1:USB模式, 2:IP模式, 3:返回, 4:退出
-echo -----------------------------------
+echo Please enter connection mode:
+echo --------------------------------------
+echo 1:USB Mode, 2:IP Mode, 3:Back, 4:Exit
+echo --------------------------------------
 set /p "con_mode=MODE "
 cls
 :CONNECTION
 if "%con_mode%"=="1" (
-    echo 进入USB模式
+    echo Entering USB Mode
     cls
     goto :MODE_USB
 ) else if "%con_mode%"=="2" (
-    echo 进入IP模式
+    echo Entering IP Mode
     cls
     goto :MODE_TRS
 ) else if "%con_mode%"=="3" (
@@ -149,53 +145,52 @@ if "%con_mode%"=="1" (
 ) else if "%con_mode%"=="4" (
     exit
 ) else (
-    echo 无效输入
+    echo Invalid input
     goto :CONNECTION_INPUT
 )
 
-
 ::------------------------------------------------------------------------------
 :MODE_TRS
-REM 自动检测设备ID
+REM Auto-detect device ID
 for /f "skip=1 tokens=1" %%i in ('adb devices') do (
     set device_id=%%i
-    REM 如果当前行为空，跳过
+    REM Skip if current line is empty
     if "!device_id!"=="" (
         goto :MODE_INI
     )
 )
 
-echo 检测到设备ID: !device_id!
+echo Detected device ID: !device_id!
 
-REM 获取设备 IP 地址
-echo 正在获取设备 IP 地址...
+REM Get device IP address
+echo Getting device IP address...
 for /f "tokens=9" %%a in ('adb -s %device_id% shell ip route ^| findstr "wlan0"') do set device_ip=%%a
 
 if "%device_ip%"=="" (
-    echo 未找到 WIFI 的 IP 地址
+    echo No WIFI IP address found
     goto :MODE_INI
 )
 
-echo 自动检测到 IP 地址: %device_ip%
+echo Automatically detected IP address: %device_ip%
 
-REM 设置 TCP/IP 模式
-echo 正在设置设备为 TCP/IP 模式...
+REM Set TCP/IP mode
+echo Setting device to TCP/IP mode...
 adb -s %device_id% tcpip 5555
 if errorlevel 1 (
-    echo TCP/IP 模式设置失败
+    echo Failed to set TCP/IP mode
     goto :MODE_INI
 )
 
-echo TCP/IP 模式已成功设置, 端口: 5555
+echo TCP/IP mode successfully set, port: 5555
 
-REM 连接设备
-echo 正在通过 Wi-Fi 连接设备...
+REM Connect device
+echo Connecting to device via Wi-Fi...
 adb connect %device_ip%:5555
 if errorlevel 1 (
-    echo 设备连接 Wi-Fi 调试失败
+    echo Failed to connect device via Wi-Fi debugging
     goto :MODE_INI
 ) else (
-echo 已成功连接到设备 %device_ip%:5555
+echo Successfully connected to device %device_ip%:5555
 if not "%device_ip%"=="" (set device_ip=%device_ip%)
 set device_port=5555
 )
@@ -204,7 +199,7 @@ goto :SCRCPY_START
 
 :MODE_INI
 if defined deviceIP (
-    echo 检测到IP本地配置
+    echo Detected local IP configuration
     if defined deviceIP (set "device_ip=%deviceIP%")
     if defined devicePort (set "device_port=%devicePort%")
     if "%device_ip%"=="" (
@@ -214,33 +209,32 @@ if defined deviceIP (
     call :connect_device %device_ip% %device_port%
 
     if "!connect_success!"=="true" (
-        echo 连接成功, 设备已连接
+        echo Connection successful, device connected
         goto SCRCPY_START
     ) else (
         goto :INPUT_IP
     )
 ) else (
-    echo 未检测到IP本地配置
+    echo No local IP configuration detected
     goto :INPUT_IP
 )
 
 
-
 :INPUT_IP
-echo 请输入设备的IP地址和端口:
-echo ----------------------------------------------------------------
-echo 输入usb返回USB直连, 输入ip则会重新尝试自动获取IP地址, 输入end退出,
-echo 不输入直接回车, 则使用已保存的IP地址: %device_ip%:%device_port%
-echo ----------------------------------------------------------------
+echo Please enter device IP address and port:
+echo --------------------------------------------------------------------------
+echo Enter 'usb' to return to USB connection, 'ip' to retry auto IP detection,
+echo 'end' to exit, or press Enter to use saved IP: %device_ip%:%device_port%
+echo --------------------------------------------------------------------------
 set /p "user_input=IP: "
 
 
-REM 特殊命令处理
+REM Special command handling
 if "%user_input%"=="usb" (
-    echo 重新尝试USB调试
+    echo Retrying USB debugging
     goto :MODE_USB
 ) else if "%user_input%"=="USB" (
-    echo 重新尝试USB调试
+    echo Retrying USB debugging
     goto :MODE_USB
 ) else if "%user_input%"=="ip" (
     goto :MODE_TRS
@@ -253,53 +247,52 @@ if "%user_input%"=="usb" (
 )
 
 
-REM 检测IP地址
+REM Check IP address
 if "%user_input%"=="" (
-    echo 正在使用当前地址: %device_ip%:%device_port%
-    echo 加载中。。。
+    echo Using current address: %device_ip%:%device_port%
+    echo Loading...
     if "%device_ip%"=="" (
         cls
-        echo 当前地址为空, 无法连接设备, 请重新输入
+        echo Current address is empty, cannot connect to device, please enter again
         goto :INPUT_IP
     )
     call :connect_device %device_ip% %device_port%
     if "!connect_success!"=="true" (
         cls
-        echo 连接成功, 设备已连接
+        echo Connection successful, device connected
         goto :SCRCPY_START
     ) else (
         cls
-        echo IP地址有误, 无法连接到设备, 请重新输入
+        echo Invalid IP address, cannot connect to device, please try again
         goto :INPUT_IP
     )
 )
 
-REM 将user_input拆分为device_ip和device_port
+REM Split user_input into device_ip and device_port
 for /f "tokens=1,2 delims=:" %%a in ("%user_input%") do (
     set "device_ip=%%a"
     set "device_port=%%b"
 )
-REM 去除 device_ip, device_port 后面的多余空
+REM Remove trailing spaces from device_ip and device_port
 set "device_ip=%device_ip: =%"
 set "device_port=%device_port: =%"
 
 if not defined device_ip (
-    echo 无效的IP地址和端口
+    echo Invalid IP address and port
     goto :INPUT_IP
 )
 call :connect_device %device_ip% %device_port%
 if "!connect_success!"=="true" (
-    echo 设备已连接
+    echo Device connected
     goto :SCRCPY_START
 ) else (
-    echo ip地址有误, 无法连接到设备
+    echo Invalid IP address, cannot connect to device
     goto :INPUT_IP
 )
 
-
 :SCRCPY_START
-REM 参数合成
-echo 保存配置文件中...
+REM Parameter composition
+echo Saving configuration file...
 call :CONFIG_SAVE
 
 if "%act_mode%"=="1" (
@@ -326,11 +319,7 @@ set audio_codec=%ip_audio_codec%
 set audio_buffer=%ip_audio_buffer%
 )
 
-
 set str_set= --video-codec=%video_codec% --video-buffer=%video_buffer%  --audio-codec=%audio_codec% --audio-buffer=%audio_buffer% --max-fps=%max_fps%
-
-
-
 
 echo IP: %device_ip%:%device_port%
 if "%connect_mode%"=="1" (
@@ -338,7 +327,7 @@ if "%connect_mode%"=="1" (
 ) else if "%con_mode%"=="2" (
     set connect_mode= --serial=%device_ip%:%device_port%
 ) else (
-    echo 无效的连接模式
+    echo Invalid connection mode
     pause
     exit /b
 )
@@ -348,7 +337,7 @@ echo ------------------------------------------------------------------------
 powershell -window minimized -command ""
 scrcpy%com_mode%%connect_mode%%com_str_set%%str_set%%custom_param%
 if errorlevel 1 (
-    echo scrcpy 启动失败
+    echo Failed to start scrcpy
     powershell -window normal -command ""
     pause
     exit /b
@@ -356,7 +345,7 @@ if errorlevel 1 (
 exit
 
 
-REM 尝试连接设备
+REM Try to connect to device
 :connect_device
 set "connect_success=false"
 
@@ -366,7 +355,7 @@ for /f "delims=" %%a in ('.\adb connect %device_ip%:%device_port% 2^>^&1') do (
         set "connect_success=true"
     ) else if "!output!"=="already connected to %device_ip%:%device_port%" (
         set "connect_success=true"
-    ) else if "!output!"=="cannot connect to %device_ip%:%device_port%: 由于连接方在一段时间后没有正确答复或连接的主机没有反应, 连接尝试失败。 (10060)" (
+    ) else if "!output!"=="cannot connect to %device_ip%:%device_port%: Connection attempt failed because the connected party did not properly respond after a period of time, or the established connection failed because the connected host failed to respond. (10060)" (
         set "connect_success=false"
     )
 )
@@ -375,21 +364,21 @@ exit /b
 
 REM ---------------------------------------------------------------------
 :CONFIG_SAVE
-REM 设置输出 ini 文件路径（覆盖原文件）
+REM Set output ini file path (overwrite original file)
 set "output_ini=%~dp0config.ini"
 
-REM 备份原始 config.ini 文件
+REM Backup original config.ini file
 copy /y "%ini_file%" %~dp0"config_bak" >nul
 if errorlevel 1 (
-    echo 警告: 无法备份 %ini_file%
+    echo Warning: Cannot backup %ini_file%
 ) else (
-    echo 已创建配置文件备份为 config.bak
+    echo Configuration file backed up as config.bak
 )
 
-REM 开始写入新的 config.ini 文件
-REM 使用括号组确保一次性重定向所有输出
+REM Start writing new config.ini file
+REM Use bracket group to ensure all output is redirected at once
 (
-    REM 写入 [NORM_SET] 部分
+    REM Write [NORM_SET] section
     echo [NORM_SET]
     echo screen_off_timeout=%screen_off_timeout%
     echo shortcut_mod=%shortcut_mod%
@@ -398,12 +387,12 @@ REM 使用括号组确保一次性重定向所有输出
     echo app_start_num=%app_start_num%
     echo custom_param=%custom_param%
 
-    REM 写入 [CONN_SET] 部分
+    REM Write [CONN_SET] section
     echo [CONN_SET]
     echo device_ip=%device_ip%
     echo device_port=%device_port%
 
-    REM 写入 [USB_SET] 部分
+    REM Write [USB_SET] section
     echo [USB_SET]
     echo usb_video_codec=%usb_video_codec%
     echo usb_video_buffer=%usb_video_buffer%
@@ -411,7 +400,7 @@ REM 使用括号组确保一次性重定向所有输出
     echo usb_audio_codec=%usb_audio_codec%
     echo usb_audio_buffer=%usb_audio_buffer%
 
-    REM 写入 [IP_SET] 部分
+    REM Write [IP_SET] section
     echo [IP_SET]
     echo ip_video_codec=%ip_video_codec%
     echo ip_video_buffer=%ip_video_buffer%
@@ -419,7 +408,7 @@ REM 使用括号组确保一次性重定向所有输出
     echo ip_audio_codec=%ip_audio_codec%
     echo ip_audio_buffer=%ip_audio_buffer%
 
-    REM 写入 [APP_List] 部分
+    REM Write [APP_List] section
     echo [APP_List]
     echo app_1=%app_1%
     echo app_2=%app_2%
@@ -432,45 +421,44 @@ REM 使用括号组确保一次性重定向所有输出
     echo app_9=%app_9%
     echo app_0=%app_0%
 
-    REM 写入 [END] 部分（如果需要）
+    REM Write [END] section (if needed)
     echo [END]
 ) > "%output_ini%"
 
-echo 配置文件保存成功...
+echo Configuration file saved successfully...
 endlocal
 exit /b
 
-
 REM -------------------------------------------------------------
 :CONFIG_LOAD
-REM 设置 ini 文件路径
+REM Set ini file path
 set "ini_file=%~dp0config.ini"
 
-REM 逐行读取 ini 文件
+REM Read ini file line by line
 for /f "usebackq tokens=* delims=" %%a in ("%ini_file%") do (
     set "line=%%a"
     
-    REM 去除行首和行尾的空格
+    REM Remove leading and trailing spaces
     call :trim line line_trimmed
     
-    REM 跳过空行和注释
+    REM Skip empty lines and comments
     if not "!line_trimmed!"=="" (
         set "first_char=!line_trimmed:~0,1!"
         if not "!first_char!"=="[" (
             if not "!first_char!"==";" (
-                REM 检查是否包含等号 =
+                REM Check if contains equals sign =
                 echo "!line_trimmed!" | find "=" >nul
                 if not errorlevel 1 (
-                    REM 分割成键和值
+                    REM Split into key and value
                     for /f "tokens=1,* delims==" %%b in ("!line_trimmed!") do (
                         set "key=%%b"
                         set "value=%%c"
                         
-                        REM 去除键和值前后的空格
+                        REM Remove spaces from key and value
                         call :trim key key_trimmed
                         call :trim value value_trimmed
                         
-                        REM 设置变量，变量名为键
+                        REM Set variable with key as name
                         set "!key_trimmed!=!value_trimmed!"
                     )
                 )
@@ -482,12 +470,12 @@ for /f "usebackq tokens=* delims=" %%a in ("%ini_file%") do (
 exit /b
 
 
-REM 子程序：修剪变量中前后的空格
+REM Subroutine: Trim spaces from variables
 :trim
     set "string=!%1!"
-    REM 去除左边空格
+    REM Remove left spaces
     for /f "tokens=* delims= " %%x in ("!string!") do set "string=%%x"
-    REM 去除右边空格
+    REM Remove right spaces
     :loop
     if "!string:~-1!"==" " (
         set "string=!string:~0,-1!"
@@ -500,11 +488,11 @@ exit /b
 
 REM ---------------------------------------------------------------------------
 :APP_CHOICE
-REM 清空屏幕
+REM Clear screen
 cls
 
-REM 遍历 App_1 到 App_9 和 App_0 并显示非空的应用程序选项
-echo 可用的应用程序列表：
+REM Loop through App_1 to App_9 and App_0 and display non-empty application options
+echo Available applications list:
 set "app_found=false"
 for /L %%i in (1,1,9) do (
     if defined app_%%i (
@@ -515,7 +503,7 @@ for /L %%i in (1,1,9) do (
     )
 )
 
-REM 单独处理 App_0 的逻辑
+REM Handle App_0 logic separately
 if defined app_0 (
     if not "!app_0!"=="" (
         echo 0: !app_0!
@@ -523,37 +511,37 @@ if defined app_0 (
     )
 )
 
-REM 如果没有找到任何应用，显示提示信息
+REM If no applications found, display message
 if not "!app_found!"=="true" (
-    echo 没有可用的应用程序选项。
+    echo No available applications.
     pause
     exit /b
 )
 
-REM 提示用户输入应用序号
-echo 请输入要启动的应用序号(0-9)，直接按回车不选，则启动默认应用 %app_start_num%
+REM Prompt user to input application number
+echo Please enter application number (0-9), press Enter for default app %app_start_num%
 set /p app_input_choice=
 
-REM 如果用户输入为空，则使用默认值 app_start_num
+REM If user input is empty, use default app_start_num
 if "%app_input_choice%"=="" (
     set "app_input_choice=%app_start_num%"
 )
 
-REM 验证用户输入是否为有效的数字序号
+REM Validate if user input is valid number
 if "%app_input_choice%" geq "0" if "%app_input_choice%" leq "9" (
-    REM 获取用户选择的应用
+    REM Get selected application
     set "selected_app=!app_%app_input_choice%!"
     if not "!selected_app!"=="" (
-        echo 即将启动应用：!selected_app!
+        echo Starting application: !selected_app!
         set app_start_num=%app_input_choice%
         exit /b
     ) else (
-        echo 无效的选择，没有找到对应的应用。
+        echo Invalid selection, application not found.
         pause
         goto :APP_CHOICE
     )
 ) else (
-    echo 输入无效，请输入 0-9 的数字。
+    echo Invalid input, please enter a number between 0-9.
     pause
     goto :APP_CHOICE
 )
@@ -562,62 +550,62 @@ exit /b
 
 
 REM --------------------------------------------------------------------------
-REM ADB服务
+REM ADB Service
 :ADB_MODE
 cd /d %script_dir%
 if not defined adbMode (
     set adb_mode=%adbMode%
-echo 请输入需要的ADB命令
-echo ----------------------------------------------------
-echo 1:重启ADB服务, 2:关闭ADB服务, 3:打开ADB服务, 4:退出
-echo ----------------------------------------------------
+echo Please enter required ADB command
+echo --------------------------------------------------------------------
+echo 1:Restart ADB Service 2:Stop ADB Service 3:Start ADB Service 4:Exit
+echo --------------------------------------------------------------------
 set /p "adb_mode=MODE "
 )
 cls
 
 if "%adb_mode%"=="1" (
-    echo 重启服务中...
+    echo Restarting service...
     adb kill-server
     adb start-server
     if errorlevel 1 (
-        echo 重启服务失败
+        echo Failed to restart service
         pause
         exit /b
     )
     cls
-    echo 重启服务成功
+    echo Service restarted successfully
     goto :RESTART
 
 ) else if "%adb_mode%"=="2" (
-    echo 停止服务中...
+    echo Stopping service...
     adb kill-server
     if errorlevel 1 (
-        echo 停止服务失败
+        echo Failed to stop service
         pause
         exit /b
     )
     cls
-    echo 服务已停止
+    echo Service stopped
     pause
     exit
 
 ) else if "%adb_mode%"=="3" (
-    echo 启动服务中...
+    echo Starting service...
     adb start-server
     if errorlevel 1 (
-        echo 启动服务失败
+        echo Failed to start service
         pause
         exit /b
     )
     cls
-    echo 启动服务成功
+    echo Service started successfully
     goto :RESTART
 
 ) else if "%adb_mode%"=="4" (
     exit
 
 ) else (
-    echo 无效输入
+    echo Invalid input
     goto ADB_MODE
 )
 
@@ -627,37 +615,37 @@ exit /b
 :SCRCPY_DOWNLOAD
 if exist scrcpy_core (exit /b)
 if not exist scrcpy-win64-v3.1.zip (
-REM 下载scrcpy-win64-v3.1.zip
+REM Download scrcpy-win64-v3.1.zip
 powershell wget -Uri https://github.com/Genymobile/scrcpy/releases/download/v3.1/scrcpy-win64-v3.1.zip -OutFile "scrcpy-win64-v3.1.zip"
 )
 
-REM 检查下载是否成功
+REM Check if download was successful
 if exist "scrcpy-win64-v3.1.zip" (
-    echo 压缩包下载成功
+    echo Package downloaded successfully
 ) else (
-    echo 压缩包下载失败
-    echo 请手动下载scrcpy核心文件，并重命名文件夹为scrcpy_core
+    echo Package download failed
+    echo Please download scrcpy core files manually and rename the folder to scrcpy_core
     pause
     exit /b
 )
 
-REM 解压缩文件到当前目录
+REM Extract files to current directory
 powershell -command "Expand-Archive -Path 'scrcpy-win64-v3.1.zip' -DestinationPath '.'"
 
-REM 检查解压缩是否成功
+REM Check if extraction was successful
 if exist "scrcpy-win64-v3.1.zip" (
 
-    REM 将解压后的目录重命名为 scrcpy_core
+    REM Rename extracted directory to scrcpy_core
     ren scrcpy-win64-v3.1 scrcpy_core
 
-    REM 删除压缩包
+    REM Delete zip file
     del scrcpy-win64-v3.1.zip
 
-    echo 解压缩并重命名成功，压缩包已删除
+    echo Extraction and rename successful, package deleted
     timeout /t 3
     goto RESTART
 ) else (
-    echo 解压缩失败
+    echo Extraction failed
     pause
     exit /b
 )
