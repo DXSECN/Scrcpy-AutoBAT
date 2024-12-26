@@ -9,12 +9,12 @@ cd /d "%script_dir%"
 
 :RESTART
 
-REM 定义初始参数
+REM 定义默认参数
 REM [NORM_SET]
 set screen_off_timeout=300
 set shortcut_mod=lalt
 set resolution=864x1920
-set max_size=1920
+set max_size=
 set app_start_num=1
 set custom_param=
 REM [CONN_SET]
@@ -57,11 +57,22 @@ if not exist "%~dp0\scrcpy_core" (
 
 REM 加载配置文件
 call :CONFIG_LOAD
-if "resolution"=="" (
-    set "new_display=--new-display"
+if "%resolution%"=="" (
+    set "%new_display%=--new-display"
 ) else (
-    set "new_display=--new-display=%resolution%"
+    set "%new_display%=--new-display=%resolution%"
 )
+if "%max_size%"=="" (
+    set "max_size_use="
+) else (
+    set "max_size_use=--max-size=%max_size%"
+)
+if defined customParam (
+    if not "%customParam%"=="" (
+        set "custom_param=%customParam%"
+    )
+)
+
 
 REM 调用GUI参数
 if defined guiMode (set "gui_mode=%guiMode%")
@@ -72,7 +83,7 @@ cls
 REM 检测或选择启动模式
 :ACTION_MODE
 if defined actMode (
-    set act_mode=%actMode%
+    set "act_mode=%actMode%"
     goto :ACTION
 )
 
@@ -81,7 +92,7 @@ if defined actMode (
 echo 请输入执行模式:
 echo -----------------------------------
 echo 1:投屏模式 2:传声模式 3:窗口模式 
-echo 4:ADB服务 5:使用自定义参数 6:退出
+echo 4:ADB服务 5:自定义模式 6:退出
 echo -----------------------------------
 set /p "act_mode=MODE "
 :ACTION
@@ -114,7 +125,7 @@ if "%act_mode%"=="1" (
 REM 检测或选择连接模式
 :CONNECTION_MODE
 if defined conMode (
-    set con_mode=%conMode%
+    set "con_mode=%conMode%"
     goto :CONNECTION
 )
 :CONNECTION_INPUT
@@ -292,11 +303,11 @@ echo 保存配置文件中...
 call :CONFIG_SAVE
 
 if "%act_mode%"=="1" (
-set "com_str_set= --screen-off-timeout=%screen_off_timeout%  --max-size=%max_size% --shortcut-mod=%shortcut_mod%"
+set "com_str_set= --screen-off-timeout=%screen_off_timeout% %max_size_use% --shortcut-mod=%shortcut_mod%"
 ) else if "%act_mode%"=="2" (
-    set "com_str_set= --screen-off-timeout=%screen_off_timeout%  --max-size=%max_size% --shortcut-mod=%shortcut_mod%"
+    set "com_str_set= --screen-off-timeout=%screen_off_timeout% %max_size_use% --shortcut-mod=%shortcut_mod%"
 ) else if "%act_mode%"=="3" (
-    set "com_str_set= --screen-off-timeout=%screen_off_timeout%  --max-size=%max_size% --shortcut-mod=%shortcut_mod%" --start-app=%selected_app% %new_display%
+    set "com_str_set= --screen-off-timeout=%screen_off_timeout% %max_size_use% --shortcut-mod=%shortcut_mod%" --start-app=%selected_app% %new_display%
 ) else if "%act_mode%"=="4" (
     set "com_str_set="
 )
