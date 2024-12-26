@@ -88,13 +88,13 @@ set /p "act_mode=MODE "
 cls
 if "%act_mode%"=="1" (
     echo 已选择: 投屏模式
-    set com_mode= -KG --shortcut-mod=%shortcut_mod% --audio-codec=opus
+    set com_mode= -KG --stay-awake
 ) else if "%act_mode%"=="2" (
     echo 已选择: 音频模式
-    set com_mode= --shortcut-mod=lalt --no-window --audio-codec=opus 
+    set com_mode= --no-window
 ) else if "%act_mode%"=="3" (
     echo 已选择: 应用模式
-    set com_mode= --start-app=org.fossify.home -KG --shortcut-mod=lalt --audio-codec=opus --stay-awake %new_display%
+    set com_mode= -KG --stay-awake
     call :APP_CHOICE
 ) else if "%act_mode%"=="4" (
     cd /d %~dp0
@@ -296,7 +296,7 @@ set "com_str_set= --screen-off-timeout=%screen_off_timeout%  --max-size=%max_siz
 ) else if "%act_mode%"=="2" (
     set "com_str_set= --screen-off-timeout=%screen_off_timeout%  --max-size=%max_size% --shortcut-mod=%shortcut_mod%"
 ) else if "%act_mode%"=="3" (
-    set "com_str_set= --screen-off-timeout=%screen_off_timeout%  --max-size=%max_size% --shortcut-mod=%shortcut_mod%"
+    set "com_str_set= --screen-off-timeout=%screen_off_timeout%  --max-size=%max_size% --shortcut-mod=%shortcut_mod%" --start-app=%selected_app% %new_display%
 ) else if "%act_mode%"=="4" (
     set "com_str_set="
 )
