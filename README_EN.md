@@ -58,7 +58,7 @@ You can change the parameter value to specify the package name of a different la
 
 #### **ADB Service**
 
-![alt text](assets/cn_adb_set.png)
+![alt text](assets/en_adb_set.png)
 
 This feature allows you to start or stop the ADB service.  
 It can be used to troubleshoot connection errors or terminate established connections.
@@ -66,6 +66,8 @@ It can be used to troubleshoot connection errors or terminate established connec
 ---
 
 ### Connection Modes
+
+![alt text](assets/en_con_set.png)
 
 You can choose between **USB connection** or **IP connection**.  
 During the BAT script execution, you will be prompted to select a connection mode:  

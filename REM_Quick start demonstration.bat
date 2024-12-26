@@ -13,7 +13,7 @@ REM 1: USB Mode 2: IP Mode 3: Exit
 set conMode=2
 
 REM Custom Parameters
-set customParam= -KG
+set customParam=
 
 call scrcpy_start_cn.bat
 
