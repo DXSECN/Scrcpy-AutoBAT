@@ -1,5 +1,5 @@
 @echo off
-chcp 65001 >nul
+chcp 65001
 title Scrcpy-AutoBAT-v2.1 based on scrcpy v3.1
 setlocal enabledelayedexpansion
 
@@ -74,7 +74,7 @@ if defined customParam (
 )
 
 
-REM 调用GUI参数
+REM 调用参数
 if defined guiMode (set "gui_mode=%guiMode%")
 :: actMode conMode
 
