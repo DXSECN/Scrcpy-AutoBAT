@@ -1,5 +1,5 @@
 @echo off
-chcp 65001
+chcp 65001 >nul
 title Scrcpy-AutoBAT-v2.1 based on scrcpy v3.1
 setlocal enabledelayedexpansion
 
