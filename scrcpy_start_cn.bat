@@ -636,6 +636,7 @@ if exist "scrcpy-win64-v3.1.zip" (
     echo 压缩包下载成功
 ) else (
     echo 压缩包下载失败
+    echo 请手动下载scrcpy核心文件，并重命名文件夹为scrcpy_core
     pause
     exit /b
 )
@@ -654,7 +655,7 @@ if exist "scrcpy-win64-v3.1.zip" (
 
     echo 解压缩并重命名成功，压缩包已删除
     timeout /t 3
-    exit /b
+    goto RESTART
 ) else (
     echo 解压缩失败
     pause
