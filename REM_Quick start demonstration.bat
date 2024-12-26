@@ -12,4 +12,6 @@ REM Connection Mode
 REM 1: USB Mode 2: IP Mode 3: Exit
 set conMode=2
 
+::set customParam=-KG
+
 call scrcpy_start_cn.bat

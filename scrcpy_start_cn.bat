@@ -372,7 +372,7 @@ copy /y "%ini_file%" %~dp0"config_bak" >nul
 if errorlevel 1 (
     echo 警告: 无法备份 %ini_file%
 ) else (
-    echo 已创建配置文件备份为 config_backup.ini
+    echo 已创建配置文件备份为 config.bak
 )
 
 REM 开始写入新的 config.ini 文件
