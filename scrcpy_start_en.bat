@@ -57,9 +57,9 @@ if not exist "%~dp0\scrcpy_core" (
 REM Load configuration file
 call :CONFIG_LOAD
 if "%resolution%"=="" (
-    set "%new_display%=--new-display"
+    set "new_display=--new-display"
 ) else (
-    set "%new_display%=--new-display=%resolution%"
+    set "new_display=--new-display=%resolution%"
 )
 if "%max_size%"=="" (
     set "max_size_use="
