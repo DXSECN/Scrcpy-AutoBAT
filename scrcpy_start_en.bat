@@ -300,7 +300,7 @@ set "com_str_set= --screen-off-timeout=%screen_off_timeout% %max_size_use% --sho
 ) else if "%act_mode%"=="2" (
     set "com_str_set= --screen-off-timeout=%screen_off_timeout% %max_size_use% --shortcut-mod=%shortcut_mod%"
 ) else if "%act_mode%"=="3" (
-    set "com_str_set= --screen-off-timeout=%screen_off_timeout% %max_size_use% --shortcut-mod=%shortcut_mod%" --start-app=%selected_app% %new_display%
+    set "com_str_set= --screen-off-timeout=%screen_off_timeout% %max_size_use% --shortcut-mod=%shortcut_mod% --start-app=%selected_app% %new_display%"
 ) else if "%act_mode%"=="4" (
     set "com_str_set="
 )
