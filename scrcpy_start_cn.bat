@@ -335,10 +335,10 @@ if "%con_mode%"=="1" (
     exit /b
 )
 echo ------------------------------------------------------------------------
-echo scrcpy%com_mode%%connect_mode%%com_str_set%%str_set%%custom_param%
+echo scrcpy%com_mode%%connect_mode%%com_str_set%%str_set% %custom_param%
 echo ------------------------------------------------------------------------
 powershell -window minimized -command ""
-scrcpy%com_mode%%connect_mode%%com_str_set%%str_set%%custom_param%
+scrcpy%com_mode%%connect_mode%%com_str_set%%str_set% %custom_param%
 if errorlevel 1 (
     echo scrcpy 启动失败
     powershell -window normal -command ""
