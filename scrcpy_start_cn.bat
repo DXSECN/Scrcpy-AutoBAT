@@ -13,10 +13,10 @@ REM 定义默认参数
 REM [NORM_SET]
 set screen_off_timeout=300
 set shortcut_mod=lalt
-set resolution=864x1920
+set resolution=
 set max_size=
 set app_start_num=1
-set custom_param=
+set custom_param=-KMG
 REM [CONN_SET]
 set device_ip=
 set device_port=5555
@@ -97,13 +97,10 @@ set /p "act_mode=MODE "
 cls
 if "%act_mode%"=="1" (
     echo 已选择: 投屏模式
-    set com_mode= -KG --stay-awake
 ) else if "%act_mode%"=="2" (
     echo 已选择: 音频模式
-    set com_mode= --no-window
 ) else if "%act_mode%"=="3" (
     echo 已选择: 应用模式
-    set com_mode= -KG --stay-awake
     call :APP_CHOICE
 ) else if "%act_mode%"=="4" (
     cd /d %~dp0
@@ -302,7 +299,7 @@ call :CONFIG_SAVE
 if "%act_mode%"=="1" (
 set "com_str_set= --screen-off-timeout=%screen_off_timeout% %max_size_use% --shortcut-mod=%shortcut_mod%"
 ) else if "%act_mode%"=="2" (
-    set "com_str_set= --screen-off-timeout=%screen_off_timeout% %max_size_use% --shortcut-mod=%shortcut_mod%"
+    set "com_str_set= --screen-off-timeout=%screen_off_timeout% %max_size_use% --shortcut-mod=%shortcut_mod%" --no-window
 ) else if "%act_mode%"=="3" (
     set "com_str_set= --screen-off-timeout=%screen_off_timeout% %max_size_use% --shortcut-mod=%shortcut_mod% --start-app=%selected_app% %new_display% --mouse-bind=b---:----"
 ) else if "%act_mode%"=="4" (
