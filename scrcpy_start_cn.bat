@@ -54,7 +54,6 @@ if not exist "%~dp0\scrcpy_core" (
     exit
 )
 
-
 REM 加载配置文件
 call :CONFIG_LOAD
 if "%resolution%"=="" (
@@ -72,7 +71,6 @@ if defined customParam (
         set "custom_param=%customParam%"
     )
 )
-
 
 REM 调用参数
 if defined guiMode (set "gui_mode=%guiMode%")
@@ -225,7 +223,6 @@ if defined deviceIP (
 )
 
 
-
 :INPUT_IP
 echo 请输入设备的IP地址和端口:
 echo ----------------------------------------------------------------
@@ -301,7 +298,7 @@ if "!connect_success!"=="true" (
 REM 参数合成
 echo 保存配置文件中...
 call :CONFIG_SAVE
-
+:MODE_USB
 if "%act_mode%"=="1" (
 set "com_str_set= --screen-off-timeout=%screen_off_timeout% %max_size_use% --shortcut-mod=%shortcut_mod%"
 ) else if "%act_mode%"=="2" (
@@ -326,14 +323,9 @@ set audio_codec=%ip_audio_codec%
 set audio_buffer=%ip_audio_buffer%
 )
 
-
 set str_set= --video-codec=%video_codec% --video-buffer=%video_buffer%  --audio-codec=%audio_codec% --audio-buffer=%audio_buffer% --max-fps=%max_fps%
 
-
-
-
-echo IP: %device_ip%:%device_port%
-if "%connect_mode%"=="1" (
+if "%con_mode%"=="1" (
     set connect_mode= -d
 ) else if "%con_mode%"=="2" (
     set connect_mode= --serial=%device_ip%:%device_port%

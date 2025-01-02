@@ -85,6 +85,7 @@ if defined actMode (
     goto :ACTION
 )
 
+
 :ACTION_INPUT
 echo Please enter execution mode:
 echo --------------------------------------
@@ -118,6 +119,7 @@ if "%act_mode%"=="1" (
     goto :ACTION_INPUT
 )
 
+
 REM Detect or select connection mode
 :CONNECTION_MODE
 if defined conMode (
@@ -148,6 +150,7 @@ if "%con_mode%"=="1" (
     echo Invalid input
     goto :CONNECTION_INPUT
 )
+
 
 ::------------------------------------------------------------------------------
 :MODE_TRS
@@ -290,11 +293,12 @@ if "!connect_success!"=="true" (
     goto :INPUT_IP
 )
 
+
 :SCRCPY_START
 REM Parameter composition
 echo Saving configuration file...
 call :CONFIG_SAVE
-
+:MODE_USB
 if "%act_mode%"=="1" (
 set "com_str_set= --screen-off-timeout=%screen_off_timeout% %max_size_use% --shortcut-mod=%shortcut_mod%"
 ) else if "%act_mode%"=="2" (
@@ -321,7 +325,6 @@ set audio_buffer=%ip_audio_buffer%
 
 set str_set= --video-codec=%video_codec% --video-buffer=%video_buffer%  --audio-codec=%audio_codec% --audio-buffer=%audio_buffer% --max-fps=%max_fps%
 
-echo IP: %device_ip%:%device_port%
 if "%connect_mode%"=="1" (
     set connect_mode= -d
 ) else if "%con_mode%"=="2" (
