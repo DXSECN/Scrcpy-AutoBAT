@@ -1,7 +1,7 @@
 # Scrcpy 脚本 
-## 1. 简介 中文 | [English](README_EN.md)
+## 1. 简介
 
-当前版本 `scrcpy-AutoBAT_v2.1` `scrcpy_v3.1`
+当前版本 `scrcpy-AutoBAT_v2.2` `scrcpy_v3.2`
 
 本项目暂时只针对 windows 平台进行设计。
 
