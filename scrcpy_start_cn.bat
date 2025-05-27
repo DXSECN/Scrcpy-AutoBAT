@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-title Scrcpy-AutoBAT-v2.1 based on scrcpy v3.1
+title Scrcpy-AutoBAT-v2.2 based on scrcpy v3.1+
 setlocal enabledelayedexpansion
 
 REM 定义脚本目录
@@ -48,8 +48,8 @@ REM [END]
 REM 检查scrcpy_core文件夹是否存在，如果不存在则尝试下载
 if not exist "%~dp0\scrcpy_core" (
     echo 按键任意键后开始尝试下载scrcpy_core
-    call :SCRCPY_DOWNLOAD
     pause
+    call :SCRCPY_DOWNLOAD
     cls
     exit
 )
@@ -612,16 +612,16 @@ if "%adb_mode%"=="1" (
 
 exit /b
 
-
 :SCRCPY_DOWNLOAD
-if exist scrcpy_core (exit /b)
-if not exist scrcpy-win64-v3.1.zip (
-REM 下载scrcpy-win64-v3.1.zip
-powershell wget -Uri https://github.com/Genymobile/scrcpy/releases/download/v3.1/scrcpy-win64-v3.1.zip -OutFile "scrcpy-win64-v3.1.zip"
+if exist "scrcpy_core" (exit /b)
+if exist "scrcpy-temp.zip" (goto SCRCPY_UNZIP)
+for /f "delims=" %%i in ('powershell -command "(Invoke-RestMethod -Uri 'https://api.github.com/repos/Genymobile/scrcpy/releases/latest').tag_name"') do (
+    set "version=%%i"
 )
+powershell wget -Uri https://github.com/Genymobile/scrcpy/releases/download/%version%/scrcpy-win64-%version%.zip -OutFile "scrcpy-temp.zip"
 
 REM 检查下载是否成功
-if exist "scrcpy-win64-v3.1.zip" (
+if exist "scrcpy-temp.zip" (
     echo 压缩包下载成功
 ) else (
     echo 压缩包下载失败
@@ -630,17 +630,18 @@ if exist "scrcpy-win64-v3.1.zip" (
     exit /b
 )
 
+:SCRCPY_UNZIP
 REM 解压缩文件到当前目录
-powershell -command "Expand-Archive -Path 'scrcpy-win64-v3.1.zip' -DestinationPath '.'"
+powershell -command "Expand-Archive -Path 'scrcpy-temp.zip' -DestinationPath '.'"
 
 REM 检查解压缩是否成功
-if exist "scrcpy-win64-v3.1.zip" (
+if exist "scrcpy-temp.zip" (
 
     REM 将解压后的目录重命名为 scrcpy_core
-    ren scrcpy-win64-v3.1 scrcpy_core
+    ren scrcpy-win64-%version% scrcpy_core
 
     REM 删除压缩包
-    del scrcpy-win64-v3.1.zip
+    del scrcpy-temp.zip
 
     echo 解压缩并重命名成功，压缩包已删除
     timeout /t 3
